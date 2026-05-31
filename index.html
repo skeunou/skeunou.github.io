@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mes Univers — Laurent</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d0d0f; --surf:#141416; --surf2:#1c1c20; --bdr:#2a2a30;
+  --acc:#e8ff47; --acc2:#ff6b35; --warn:#ff9500; --txt:#f0f0f0;
+  --mut:#6b6b78; --grn:#4ade80; --red:#f87171; --purp:#a78bfa; --blue:#38bdf8;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased}
+body{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;background:radial-gradient(circle at 30% 0%,rgba(232,255,71,.06),transparent 50%),radial-gradient(circle at 80% 100%,rgba(167,139,250,.05),transparent 50%),var(--bg)}
+
+header{text-align:center;margin-bottom:60px;animation:fadeIn .6s ease}
+.hello{font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--mut);margin-bottom:8px}
+h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(48px,8vw,72px);letter-spacing:4px;line-height:1;color:var(--txt)}
+h1 .accent{color:var(--acc)}
+.subtitle{font-size:14px;color:var(--mut);margin-top:14px;max-width:520px;line-height:1.5}
+
+.universes{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;max-width:920px;width:100%}
+.universe{position:relative;background:var(--surf);border:1px solid var(--bdr);border-radius:16px;padding:28px;text-decoration:none;color:inherit;transition:.25s;display:flex;flex-direction:column;gap:14px;overflow:hidden;animation:fadeUp .5s ease backwards}
+.universe:nth-child(1){animation-delay:.1s}
+.universe:nth-child(2){animation-delay:.2s}
+.universe:nth-child(3){animation-delay:.3s}
+.universe.active{cursor:pointer}
+.universe.active:hover{border-color:var(--acc);transform:translateY(-4px);box-shadow:0 12px 40px rgba(232,255,71,.08)}
+.universe.coming-soon{opacity:.55;cursor:not-allowed}
+.universe::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent-color);opacity:.7}
+
+.universe.lv{--accent-color:var(--acc)}
+.universe.english{--accent-color:var(--blue)}
+.universe.mtc{--accent-color:var(--purp)}
+
+.u-icon{font-size:36px;line-height:1}
+.u-head{display:flex;justify-content:space-between;align-items:flex-start}
+.u-tag{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--mut);padding:4px 10px;border:1px solid var(--bdr);border-radius:12px}
+.universe.active .u-tag{color:var(--accent-color);border-color:var(--accent-color)}
+.u-name{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;color:var(--txt);line-height:1.1}
+.u-desc{font-size:13px;color:var(--mut);line-height:1.5;flex:1}
+.u-foot{display:flex;justify-content:space-between;align-items:center;margin-top:6px;font-size:12px;color:var(--mut)}
+.u-arrow{color:var(--accent-color);font-size:18px;transition:.2s}
+.universe.active:hover .u-arrow{transform:translateX(4px)}
+
+footer{margin-top:60px;text-align:center;font-size:11px;color:var(--mut);letter-spacing:1px}
+footer a{color:var(--mut);text-decoration:none}
+footer a:hover{color:var(--acc)}
+
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+@media (max-width:600px){
+  body{padding:30px 16px}
+  header{margin-bottom:40px}
+  h1{font-size:42px;letter-spacing:2px}
+  .universe{padding:22px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hello">Bienvenue Laurent</div>
+  <h1>MES <span class="accent">UNIVERS</span></h1>
+  <div class="subtitle">Choisis le domaine dans lequel tu veux travailler aujourd'hui.</div>
+</header>
+
+<main class="universes">
+
+  <a href="https://skeunou.github.io/lv-tools/" class="universe lv active">
+    <div class="u-head">
+      <div class="u-icon">🏃</div>
+      <div class="u-tag">Sport · Perf</div>
+    </div>
+    <div class="u-name">LV TOOL</div>
+    <div class="u-desc">Trail, renforcement, WOD CrossFit et nutrition sportive. Tous tes outils de préparation et d'entraînement.</div>
+    <div class="u-foot">
+      <span>4 outils disponibles</span>
+      <span class="u-arrow">→</span>
+    </div>
+  </a>
+
+  <div class="universe english coming-soon">
+    <div class="u-head">
+      <div class="u-icon">🇬🇧</div>
+      <div class="u-tag">À venir</div>
+    </div>
+    <div class="u-name">ENGLISH</div>
+    <div class="u-desc">Apprentissage et entretien de l'anglais. Vocabulaire, prononciation, exercices.</div>
+    <div class="u-foot">
+      <span>Bientôt disponible</span>
+      <span class="u-arrow">·</span>
+    </div>
+  </div>
+
+  <div class="universe mtc coming-soon">
+    <div class="u-head">
+      <div class="u-icon">☯</div>
+      <div class="u-tag">À venir</div>
+    </div>
+    <div class="u-name">MTC</div>
+    <div class="u-desc">Médecine Traditionnelle Chinoise et Tuina. Méridiens, points, diagnostics, formules.</div>
+    <div class="u-foot">
+      <span>Bientôt disponible</span>
+      <span class="u-arrow">·</span>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  Construit sur mesure · Données locales · Aucune pub
+</footer>
+
+</body>
+</html>
