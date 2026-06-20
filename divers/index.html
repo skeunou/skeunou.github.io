@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Divers — LV Tools</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d0d0f; --surf:#141416; --surf2:#1c1c20; --bdr:#2a2a30;
+  --acc:#e8ff47; --acc2:#ff6b35; --warn:#ff9500; --txt:#f0f0f0;
+  --mut:#6b6b78; --grn:#4ade80; --red:#f87171; --purp:#a78bfa; --blue:#38bdf8;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased}
+body{padding:40px 20px;background:radial-gradient(circle at 30% 0%,rgba(255,107,53,.06),transparent 50%),radial-gradient(circle at 80% 100%,rgba(232,255,71,.04),transparent 50%),var(--bg)}
+
+.back{display:inline-flex;align-items:center;gap:7px;color:var(--mut);text-decoration:none;font-size:12px;letter-spacing:1px;text-transform:uppercase;margin-bottom:28px;transition:.2s}
+.back:hover{color:var(--acc2)}
+
+header{text-align:center;margin-bottom:44px;animation:fadeIn .6s ease}
+.hello{font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--mut);margin-bottom:8px}
+h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(46px,9vw,64px);letter-spacing:4px;line-height:1;color:var(--txt)}
+h1 .accent{color:var(--acc2)}
+.subtitle{font-size:13px;color:var(--mut);margin-top:12px}
+
+main{max-width:600px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.tool-card{position:relative;display:flex;align-items:center;gap:16px;background:var(--surf);border:1px solid var(--bdr);border-left:4px solid var(--accent-color);border-radius:12px;padding:20px 22px;text-decoration:none;color:inherit;transition:.22s;animation:fadeUp .5s ease backwards}
+.tool-card:nth-child(1){animation-delay:.1s}
+.tool-card:hover{border-color:var(--accent-color);transform:translateY(-3px);box-shadow:0 12px 32px rgba(255,107,53,.08)}
+.tool-card.darts{--accent-color:var(--acc2)}
+.t-icon{font-size:32px;line-height:1;flex:none}
+.t-body{flex:1;min-width:0}
+.t-tag{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--accent-color);margin-bottom:4px}
+.t-name{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1.5px;line-height:1.1}
+.t-desc{font-size:12.5px;color:var(--mut);line-height:1.45;margin-top:4px}
+.t-arrow{color:var(--accent-color);font-size:20px;flex:none;transition:.2s}
+.tool-card:hover .t-arrow{transform:translateX(4px)}
+
+footer{margin-top:50px;text-align:center;font-size:11px;color:var(--mut);letter-spacing:1px}
+
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:600px){body{padding:30px 16px}header{margin-bottom:34px}.tool-card{padding:18px}}
+</style>
+</head>
+<body>
+
+<a href="https://skeunou.github.io/" class="back">← Mes Univers</a>
+
+<header>
+  <div class="hello">LV Tools</div>
+  <h1>DI<span class="accent">VERS</span></h1>
+  <div class="subtitle">Outils et jeux qui ne rentrent dans aucune autre case.</div>
+</header>
+
+<main>
+
+  <a href="capital-flechettes.html" class="tool-card darts">
+    <div class="t-icon">🎯</div>
+    <div class="t-body">
+      <div class="t-tag">Fléchettes · Score</div>
+      <div class="t-name">Le Capital</div>
+      <div class="t-desc">Feuille de score pour le jeu du Capital — 3 joueurs, 15 contrats, calcul automatique des divisions.</div>
+    </div>
+    <div class="t-arrow">→</div>
+  </a>
+
+</main>
+
+<footer>Construit sur mesure · Données locales · Aucune pub</footer>
+
+</body>
+</html>
