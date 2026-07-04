@@ -21,14 +21,9 @@ h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(48px,8vw,72px);letter-spa
 h1 .accent{color:var(--acc)}
 .subtitle{font-size:14px;color:var(--mut);margin-top:14px;max-width:520px;line-height:1.5}
 
-/* Raccourci accès direct P.P.L */
-.quicklaunch{display:inline-flex;align-items:center;gap:12px;margin:-32px 0 40px;padding:14px 24px;background:var(--acc);color:#0d0d0f;text-decoration:none;border-radius:14px;font-weight:700;letter-spacing:.3px;transition:.2s;box-shadow:0 8px 30px rgba(232,255,71,.18);animation:fadeIn .6s ease .15s backwards}
-.quicklaunch:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(232,255,71,.3)}
-.quicklaunch .ql-ico{font-size:20px;line-height:1}
-.quicklaunch .ql-txt{display:flex;flex-direction:column;line-height:1.2;text-align:left}
-.quicklaunch .ql-eyebrow{font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:2px;opacity:.65}
-.quicklaunch .ql-name{font-size:15px;font-weight:800}
-.quicklaunch .ql-arrow{font-size:18px;margin-left:2px}
+/* LV cliquable → raccourci Plan Perso Laurent */
+h1 .lv-link{color:var(--txt);text-decoration:none;transition:.2s;border-bottom:2px solid transparent}
+h1 .lv-link:hover{color:var(--acc);border-bottom-color:var(--acc)}
 
 .universes{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;max-width:920px;width:100%}
 .universe{position:relative;background:var(--surf);border:1px solid var(--bdr);border-radius:16px;padding:28px;text-decoration:none;color:inherit;transition:.25s;display:flex;flex-direction:column;gap:14px;overflow:hidden;animation:fadeUp .5s ease backwards}
@@ -75,18 +70,9 @@ footer a:hover{color:var(--acc)}
 
 <header>
   <div class="hello">Bienvenue Laurent</div>
-  <h1>LV <span class="accent">TOOL</span></h1>
+  <h1><a href="https://skeunou.github.io/trail-v2/trail-v2.html" class="lv-link" title="Accès direct : Plan Perso Laurent">LV</a> <span class="accent">TOOL</span></h1>
   <div class="subtitle">Tous tes outils, un seul endroit. Choisis ton univers du jour.</div>
 </header>
-
-<a href="https://skeunou.github.io/trail-v2/trail-v2.html" class="quicklaunch">
-  <span class="ql-ico">⚡</span>
-  <span class="ql-txt">
-    <span class="ql-eyebrow">ACCÈS DIRECT</span>
-    <span class="ql-name">Plan Perso Laurent</span>
-  </span>
-  <span class="ql-arrow">→</span>
-</a>
 
 <main class="universes">
 
