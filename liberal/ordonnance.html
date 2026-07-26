@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ordonnancier — LV TOOL</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d0d0f; --surf:#141416; --surf2:#1c1c20; --bdr:#2a2a30;
+  --acc:#e8ff47; --acc2:#ff6b35; --warn:#ff9500; --txt:#f0f0f0;
+  --mut:#6b6b78; --grn:#4ade80; --red:#f87171; --purp:#a78bfa; --blue:#38bdf8;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased}
+body{padding-bottom:100px}
+
+header{position:sticky;top:0;z-index:50;background:var(--bg);border-bottom:2px solid var(--acc);padding:12px 16px;display:flex;align-items:center;gap:12px}
+header .back{color:var(--mut);text-decoration:none;font-size:20px;line-height:1}
+header h1{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;flex:1}
+header .n{font-size:10px;color:var(--mut);letter-spacing:1px;text-transform:uppercase}
+
+.wrap{max-width:720px;margin:0 auto;padding:16px}
+.card{background:var(--surf);border:1px solid var(--bdr);border-radius:10px;padding:16px;margin-bottom:14px}
+.card h2{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;color:var(--acc);margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+.card h2 .mini{font-family:'DM Sans',sans-serif;font-size:11px;letter-spacing:0;color:var(--mut);font-weight:500}
+
+label{display:block;font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--mut);margin-bottom:5px}
+input,select,textarea{width:100%;background:var(--surf2);border:1px solid var(--bdr);border-radius:8px;color:var(--txt);font-family:'DM Sans',sans-serif;font-size:15px;padding:10px 12px}
+input:focus,select,textarea:focus{outline:none;border-color:var(--acc)}
+textarea{resize:vertical;min-height:110px;line-height:1.5}
+.row{display:grid;gap:10px;margin-bottom:12px}
+.row.c2{grid-template-columns:1fr 1fr}
+.row.c3{grid-template-columns:1fr 1fr 1fr}
+@media(max-width:520px){.row.c3{grid-template-columns:1fr 1fr}}
+
+.ident{background:var(--surf2);border-radius:8px;padding:12px;font-size:13px;line-height:1.6;color:var(--mut)}
+.ident strong{color:var(--txt);font-size:15px}
+
+.ald{display:flex;align-items:center;gap:12px;background:var(--surf2);border:1px solid var(--bdr);border-radius:8px;padding:12px;cursor:pointer;transition:.2s}
+.ald.on{border-color:var(--acc2);background:rgba(255,107,53,.08)}
+.ald input{width:20px;height:20px;flex:0 0 auto;accent-color:var(--acc2)}
+.ald .t{font-size:14px;font-weight:600}
+.ald .s{font-size:11px;color:var(--mut);margin-top:2px}
+
+.hide{display:none !important}
+
+.btn{display:block;width:100%;background:var(--acc);color:#000;border:none;border-radius:10px;padding:14px;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;cursor:pointer;margin-bottom:10px}
+.btn.sec{background:transparent;border:1px solid var(--bdr);color:var(--txt)}
+.btn.sm{padding:10px;font-size:16px}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:var(--surf2);border:1px solid var(--bdr);border-radius:20px;padding:7px 13px;font-size:12px;color:var(--txt);cursor:pointer}
+.chip:hover{border-color:var(--acc);color:var(--acc)}
+.chip.cat{border-color:var(--purp);color:var(--purp)}
+
+.hist{display:flex;flex-direction:column;gap:8px;max-height:320px;overflow:auto}
+.hitem{background:var(--surf2);border:1px solid var(--bdr);border-radius:8px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;gap:10px;cursor:pointer}
+.hitem:hover{border-color:var(--acc)}
+.hitem .hn{font-size:14px;font-weight:600}
+.hitem .hd{font-size:11px;color:var(--mut)}
+.hitem .del{color:var(--red);font-size:16px;padding:0 6px;background:none;border:none;cursor:pointer}
+.empty{font-size:12px;color:var(--mut);text-align:center;padding:14px}
+
+.note{font-size:11px;color:var(--mut);line-height:1.5;margin-top:10px;border-left:2px solid var(--bdr);padding-left:10px}
+
+/* ---------- MODALE ---------- */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;display:flex;align-items:flex-end;justify-content:center}
+.modal .box{background:var(--surf);border-top:2px solid var(--acc);border-radius:14px 14px 0 0;width:100%;max-width:720px;max-height:82vh;overflow:auto;padding:18px}
+.modal h3{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;color:var(--acc);margin-bottom:12px}
+.mgrp{margin-bottom:16px}
+.mgrp .gt{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--mut);margin-bottom:7px}
+
+/* ---------- FEUILLE A5 ---------- */
+#sheet{
+  background:#fff;color:#111;width:148mm;min-height:210mm;padding:11mm 11mm 9mm;
+  font-family:'DM Sans',Arial,sans-serif;font-size:9.6pt;line-height:1.42;
+  margin:0 auto 30px;position:relative;
+}
+#sheetWrap{display:none;overflow:auto;padding:10px 0}
+#sheetWrap.show{display:block}
+#sheet .hd{display:flex;justify-content:space-between;align-items:flex-start;gap:8mm;border-bottom:1.2pt solid #111;padding-bottom:3mm}
+#sheet .hd .nom{font-size:13pt;font-weight:700;letter-spacing:.4px}
+#sheet .hd .qual{font-size:9pt;font-style:italic;color:#333}
+#sheet .hd .co{font-size:8.6pt;line-height:1.45;margin-top:1.5mm}
+#sheet .hd .num{text-align:right;font-size:8.6pt;line-height:1.5;white-space:nowrap}
+#sheet .hd .num b{font-size:9.4pt}
+
+#sheet .pat{display:flex;justify-content:space-between;gap:6mm;margin-top:4mm}
+#sheet .pat .pl{flex:1}
+#sheet .pat .lg{font-size:7.6pt;text-transform:uppercase;letter-spacing:.6px;color:#666}
+#sheet .pat .vl{font-size:10pt;font-weight:600;border-bottom:.5pt dotted #999;min-height:5mm;padding-bottom:.5mm;margin-bottom:2mm}
+#sheet .lieu{text-align:right;font-size:9pt;white-space:nowrap;padding-top:2mm}
+
+#sheet .aldbox{margin-top:4mm;border:1pt solid #111;padding:2mm 3mm;font-size:9pt;display:flex;align-items:center;gap:3mm}
+#sheet .aldbox .cb{font-size:12pt;line-height:1}
+#sheet .aldbox b{letter-spacing:.3px}
+
+#sheet .zt{margin-top:4mm;font-size:8.2pt;text-transform:uppercase;letter-spacing:1px;color:#000;font-weight:700;border-bottom:.8pt solid #111;padding-bottom:1mm}
+#sheet .zt .sub{float:right;font-weight:400;text-transform:none;letter-spacing:0;font-size:7.8pt;color:#555}
+#sheet .zc{white-space:pre-wrap;font-size:10pt;line-height:1.6;padding:2.5mm 0 2mm 1mm;min-height:22mm}
+#sheet .sep{border-top:1pt dashed #111;margin:3mm 0 0}
+
+#sheet .ft{margin-top:6mm;display:flex;justify-content:space-between;align-items:flex-end;gap:8mm}
+#sheet .ft .dur{font-size:9pt;flex:1}
+#sheet .ft .sig{text-align:center;font-size:8.2pt;color:#555;min-width:42mm}
+#sheet .ft .sig .line{border-bottom:.6pt solid #111;height:16mm}
+#sheet .legal{position:absolute;left:11mm;right:11mm;bottom:5mm;font-size:6.6pt;color:#777;text-align:center;line-height:1.4}
+
+@page{size:A5 portrait;margin:0}
+@media print{
+  html,body{background:#fff !important;padding:0 !important}
+  header,.wrap,.modal{display:none !important}
+  #sheetWrap{display:block !important;padding:0;overflow:visible}
+  #sheet{margin:0;box-shadow:none;width:148mm;min-height:209mm}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <a href="./" class="back">←</a>
+  <h1>ORDONNANCIER</h1>
+  <span class="n">IDE Libéral</span>
+</header>
+
+<div class="wrap">
+
+  <!-- PRESCRIPTEUR -->
+  <div class="card">
+    <h2>Prescripteur <span class="mini" id="editIdent" style="cursor:pointer;color:var(--acc)">modifier</span></h2>
+    <div class="ident" id="identView"></div>
+    <div id="identEdit" class="hide" style="margin-top:12px">
+      <div class="row c2">
+        <div><label>Nom affiché</label><input id="iNom"></div>
+        <div><label>Qualité</label><input id="iQual"></div>
+      </div>
+      <div class="row"><div><label>Adresse (2 lignes, séparées par ;)</label><input id="iAdr"></div></div>
+      <div class="row c3">
+        <div><label>Téléphone</label><input id="iTel"></div>
+        <div><label>N° ADELI</label><input id="iAdeli"></div>
+        <div><label>N° RPPS (option)</label><input id="iRpps"></div>
+      </div>
+      <div class="row c2">
+        <div><label>N° AM / FINESS (option)</label><input id="iAm"></div>
+        <div><label>Ville de signature</label><input id="iVille"></div>
+      </div>
+      <button class="btn sm" id="saveIdent">Enregistrer</button>
+    </div>
+  </div>
+
+  <!-- PATIENT -->
+  <div class="card">
+    <h2>Patient <span class="mini" id="pickPatient" style="cursor:pointer;color:var(--acc)">↺ rappeler</span></h2>
+    <div class="row c2">
+      <div><label>Nom</label><input id="pNom" placeholder="DUPONT"></div>
+      <div><label>Prénom</label><input id="pPre" placeholder="Marie"></div>
+    </div>
+    <div class="row c2">
+      <div><label>Né(e) le</label><input id="pDn" type="date"></div>
+      <div><label>N° de sécurité sociale</label><input id="pNir" inputmode="numeric" placeholder="2 55 06 69 123 456 78"></div>
+    </div>
+    <div class="row"><div><label>Adresse</label><input id="pAdr" placeholder="14 rue des Écoles, 69300 Caluire"></div></div>
+  </div>
+
+  <!-- ORDONNANCE -->
+  <div class="card">
+    <h2>Ordonnance</h2>
+    <div class="row c2">
+      <div><label>Date</label><input id="oDate" type="date"></div>
+      <div><label>Type</label>
+        <select id="oType">
+          <option>Prescription de dispositifs médicaux</option>
+          <option>Prescription de soins infirmiers</option>
+          <option>Vaccination antigrippale</option>
+          <option>Substituts nicotiniques</option>
+          <option>Ordonnance</option>
+        </select>
+      </div>
+    </div>
+
+    <label class="ald" id="aldWrap">
+      <input type="checkbox" id="oAld">
+      <span>
+        <span class="t">ALD — Exonération 100 %</span>
+        <span class="s">Coché → ordonnance bizone (ALD / hors ALD)</span>
+      </span>
+    </label>
+
+    <div style="margin-top:14px">
+      <label id="lbZ1">Prescription</label>
+      <textarea id="oZ1" placeholder="1 ligne = 1 item&#10;Ex : Compresses stériles 10x10 cm — 2 boîtes de 50&#10;Sérum physiologique 5 ml — 1 boîte de 50"></textarea>
+    </div>
+
+    <div id="z2Wrap" class="hide" style="margin-top:12px">
+      <label>Hors ALD (affections intercurrentes)</label>
+      <textarea id="oZ2" placeholder="Prescriptions sans rapport avec l'ALD"></textarea>
+    </div>
+
+    <div style="margin-top:12px">
+      <button class="btn sec sm" id="openBank">＋ Banque de dispositifs médicaux</button>
+    </div>
+
+    <div class="row c2" style="margin-top:12px">
+      <div><label>Durée / quantité</label><input id="oDuree" placeholder="Pour 1 mois de soins"></div>
+      <div><label>Renouvellement</label>
+        <select id="oRenew">
+          <option>Non renouvelable</option>
+          <option>À renouveler 1 fois</option>
+          <option>À renouveler 2 fois</option>
+          <option>À renouveler 3 fois</option>
+          <option>À renouveler 5 fois</option>
+          <option value="">(aucune mention)</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIONS -->
+  <div class="card">
+    <button class="btn" id="btnPrint">🖨 Imprimer / Exporter PDF A5</button>
+    <div class="btns">
+      <button class="btn sec sm" id="btnPreview">👁 Aperçu</button>
+      <button class="btn sec sm" id="btnNew">✚ Nouvelle</button>
+    </div>
+    <div class="note">
+      L'export passe par l'impression du navigateur : choisir « Enregistrer au format PDF » et vérifier que le format papier est bien <b>A5</b> (Chrome Android : Plus de paramètres → Format du papier).
+    </div>
+  </div>
+
+  <!-- HISTORIQUE -->
+  <div class="card">
+    <h2>Historique <span class="mini" id="clearHist" style="cursor:pointer;color:var(--red)">tout effacer</span></h2>
+    <div class="hist" id="histList"></div>
+  </div>
+
+  <div class="note" style="margin-bottom:20px">
+    ⚠️ Outil personnel d'aide à la rédaction. Le droit de prescription infirmier est limité à une liste réglementaire (dispositifs médicaux, vaccins, substituts nicotiniques). La banque proposée est indicative — vérifier la liste en vigueur et la prise en charge LPP avant délivrance.
+  </div>
+</div>
+
+<!-- FEUILLE A5 -->
+<div id="sheetWrap">
+  <div id="sheet">
+    <div class="hd">
+      <div>
+        <div class="nom" id="sNom"></div>
+        <div class="qual" id="sQual"></div>
+        <div class="co" id="sCo"></div>
+      </div>
+      <div class="num" id="sNum"></div>
+    </div>
+
+    <div class="pat">
+      <div class="pl">
+        <div class="lg">Patient</div>
+        <div class="vl" id="sPat"></div>
+        <div class="lg">Né(e) le · N° de sécurité sociale</div>
+        <div class="vl" id="sNir"></div>
+        <div class="lg">Adresse</div>
+        <div class="vl" id="sAdr"></div>
+      </div>
+      <div class="lieu" id="sLieu"></div>
+    </div>
+
+    <div class="aldbox"><span class="cb" id="sCb">☐</span> <b>ALD — Exonération du ticket modérateur (100 %)</b></div>
+
+    <div class="zt" id="sZ1t">Prescription</div>
+    <div class="zc" id="sZ1"></div>
+
+    <div id="sSep2" class="hide">
+      <div class="sep"></div>
+      <div class="zt">Hors ALD <span class="sub">Affections intercurrentes — remboursement au taux habituel</span></div>
+      <div class="zc" id="sZ2"></div>
+    </div>
+
+    <div class="ft">
+      <div class="dur" id="sDur"></div>
+      <div class="sig">
+        <div class="line"></div>
+        Signature et cachet
+      </div>
+    </div>
+
+    <div class="legal">Ordonnance établie conformément aux dispositions relatives au droit de prescription des infirmiers.</div>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+/* ---------- IDENTITÉ PAR DÉFAUT ---------- */
+var DEF_IDENT = {
+  nom:"VERON Laurent",
+  qual:"Infirmier Diplômé d'État",
+  adr:"12 rue Lavoisier;69300 Caluire-et-Cuire",
+  tel:"06 58 05 04 40",
+  adeli:"696709187",
+  rpps:"",
+  am:"",
+  ville:"Caluire-et-Cuire"
+};
+var K_IDENT="ordo:ident:v1", K_HIST="ordo:hist:v1", K_PAT="ordo:patients:v1";
+var ident = load(K_IDENT, DEF_IDENT);
+var hist  = load(K_HIST, []);
+var pats  = load(K_PAT, []);
+
+function load(k,d){ try{ var v=localStorage.getItem(k); return v?JSON.parse(v):d; }catch(e){ return d; } }
+function save(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
+function $(id){ return document.getElementById(id); }
+function esc(s){ return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+/* ---------- BANQUE DM (indicative) ---------- */
+var BANK = [
+ ["Pansements & soins de plaies",[
+   "Compresses stériles 10 x 10 cm — 2 boîtes de 50",
+   "Compresses stériles 7,5 x 7,5 cm — 2 boîtes de 50",
+   "Sérum physiologique 5 ml — 1 boîte de 50 unidoses",
+   "Antiseptique cutané (chlorhexidine aqueuse) — 1 flacon",
+   "Pansement adhésif stérile 10 x 8 cm — 1 boîte",
+   "Film adhésif transparent semi-perméable — 1 boîte",
+   "Pansement hydrocolloïde 10 x 10 cm — 1 boîte",
+   "Pansement hydrocellulaire 10 x 10 cm — 1 boîte",
+   "Interface tulle neutre 10 x 10 cm — 1 boîte",
+   "Bande de crêpe 10 cm x 4 m — 6 unités",
+   "Bande de maintien cohésive 10 cm — 4 unités",
+   "Sparadrap hypoallergénique 2,5 cm — 2 rouleaux",
+   "Filet tubulaire de maintien — 1 unité",
+   "Set de pansement stérile — 1 boîte"
+ ]],
+ ["Perfusion à domicile",[
+   "Cathéter court sécurisé 20 G — 10 unités",
+   "Perfuseur par gravité stérile — 10 unités",
+   "Prolongateur avec robinet 3 voies — 10 unités",
+   "Aiguille de Huber sécurisée 20 G — 5 unités",
+   "Valve bidirectionnelle sans aiguille — 10 unités",
+   "Pansement stérile transparent pour cathéter — 1 boîte",
+   "Seringue préremplie NaCl 0,9 % 10 ml — 20 unités",
+   "Pied à perfusion — 1 unité (location)"
+ ]],
+ ["Prévention d'escarre & installation",[
+   "Matelas anti-escarre à air motorisé — 1 (location)",
+   "Surmatelas en mousse viscoélastique — 1 unité",
+   "Coussin de série de prévention d'escarre — 1 unité",
+   "Talonnières de décharge — 1 paire",
+   "Cerceau de lit — 1 unité",
+   "Potence — 1 unité (location)"
+ ]],
+ ["Urologie & incontinence",[
+   "Sonde vésicale à ballonnet CH 16 siliconée — 2 unités",
+   "Sonde urinaire pour autosondage CH 14 — 60 unités",
+   "Poche de recueil d'urine à vidange 2 L — 10 unités",
+   "Sac de jambe 750 ml — 10 unités",
+   "Étui pénien autoadhésif — 30 unités",
+   "Protection anatomique absorption forte — 1 sachet / jour",
+   "Set de sondage stérile — 5 unités"
+ ]],
+ ["Diabète & glycémie",[
+   "Bandelettes d'autosurveillance glycémique — 1 boîte de 100",
+   "Lancettes stériles — 1 boîte de 100",
+   "Autopiqueur — 1 unité",
+   "Aiguilles pour stylo injecteur 4 mm — 1 boîte de 100",
+   "Seringue à insuline 100 UI — 1 boîte de 30"
+ ]],
+ ["Compression & divers",[
+   "Bas de compression classe 2 (renouvellement à l'identique) — 2 paires",
+   "Chaussettes de compression classe 2 — 2 paires",
+   "Gants non stériles à usage unique — 1 boîte de 100",
+   "Collecteur DASRI pour objets piquants/coupants — 1 unité",
+   "Masques chirurgicaux type II — 1 boîte de 50",
+   "Solution hydro-alcoolique 100 ml — 1 flacon"
+ ]]
+];
+
+/* ---------- IDENTITÉ ---------- */
+function renderIdent(){
+  var l = ident.adr.split(";");
+  var h = "<strong>"+esc(ident.nom)+"</strong><br>"+esc(ident.qual)+"<br>"+esc(l.join(" · "))+"<br>Tél. "+esc(ident.tel)+"<br>N° "+esc(ident.adeli);
+  if(ident.rpps) h += " · RPPS "+esc(ident.rpps);
+  $("identView").innerHTML = h;
+}
+function fillIdentForm(){
+  $("iNom").value=ident.nom; $("iQual").value=ident.qual; $("iAdr").value=ident.adr;
+  $("iTel").value=ident.tel; $("iAdeli").value=ident.adeli; $("iRpps").value=ident.rpps;
+  $("iAm").value=ident.am||""; $("iVille").value=ident.ville;
+}
+$("editIdent").onclick=function(){
+  var e=$("identEdit");
+  if(e.classList.contains("hide")){ fillIdentForm(); e.classList.remove("hide"); this.textContent="fermer"; }
+  else { e.classList.add("hide"); this.textContent="modifier"; }
+};
+$("saveIdent").onclick=function(){
+  ident={nom:$("iNom").value,qual:$("iQual").value,adr:$("iAdr").value,tel:$("iTel").value,
+         adeli:$("iAdeli").value,rpps:$("iRpps").value,am:$("iAm").value,ville:$("iVille").value};
+  save(K_IDENT,ident); renderIdent();
+  $("identEdit").classList.add("hide"); $("editIdent").textContent="modifier";
+};
+
+/* ---------- ALD BIZONE ---------- */
+$("oAld").onchange=function(){
+  $("aldWrap").classList.toggle("on",this.checked);
+  $("z2Wrap").classList.toggle("hide",!this.checked);
+  $("lbZ1").textContent = this.checked ? "Prescription en rapport avec l'ALD (100 %)" : "Prescription";
+};
+
+/* ---------- BANQUE ---------- */
+$("openBank").onclick=function(){
+  var h='<div class="box"><h3>Banque de dispositifs médicaux</h3>';
+  for(var i=0;i<BANK.length;i++){
+    h+='<div class="mgrp"><div class="gt">'+esc(BANK[i][0])+'</div><div class="chips">';
+    for(var j=0;j<BANK[i][1].length;j++){
+      h+='<span class="chip" data-t="'+esc(BANK[i][1][j])+'">'+esc(BANK[i][1][j])+'</span>';
+    }
+    h+='</div></div>';
+  }
+  h+='<button class="btn sm" id="closeBank">Fermer</button></div>';
+  var m=document.createElement("div"); m.className="modal"; m.innerHTML=h;
+  document.body.appendChild(m);
+  m.addEventListener("click",function(ev){
+    if(ev.target===m || ev.target.id==="closeBank"){ m.remove(); return; }
+    var c=ev.target.closest(".chip");
+    if(c){
+      var tgt = ($("oAld").checked && document.activeElement && document.activeElement.id==="oZ2") ? $("oZ2") : $("oZ1");
+      tgt.value = (tgt.value.trim() ? tgt.value.replace(/\s*$/,"")+"\n" : "") + c.getAttribute("data-t");
+      c.style.borderColor="var(--grn)"; c.style.color="var(--grn)";
+    }
+  });
+};
+
+/* ---------- PATIENTS ---------- */
+$("pickPatient").onclick=function(){
+  if(!pats.length){ alert("Aucun patient enregistré pour l'instant."); return; }
+  var h='<div class="box"><h3>Patients enregistrés</h3><div class="hist">';
+  for(var i=0;i<pats.length;i++){
+    h+='<div class="hitem" data-i="'+i+'"><span><span class="hn">'+esc(pats[i].nom+" "+pats[i].pre)+'</span><br><span class="hd">'+esc(pats[i].nir||"—")+'</span></span><button class="del" data-d="'+i+'">✕</button></div>';
+  }
+  h+='</div><button class="btn sm" id="closeP" style="margin-top:12px">Fermer</button></div>';
+  var m=document.createElement("div"); m.className="modal"; m.innerHTML=h;
+  document.body.appendChild(m);
+  m.addEventListener("click",function(ev){
+    if(ev.target===m||ev.target.id==="closeP"){ m.remove(); return; }
+    var d=ev.target.getAttribute("data-d");
+    if(d!==null&&d!==undefined){ pats.splice(+d,1); save(K_PAT,pats); m.remove(); return; }
+    var it=ev.target.closest(".hitem");
+    if(it){ var p=pats[+it.getAttribute("data-i")];
+      $("pNom").value=p.nom; $("pPre").value=p.pre; $("pDn").value=p.dn||""; $("pNir").value=p.nir||""; $("pAdr").value=p.adr||"";
+      m.remove(); }
+  });
+};
+function rememberPatient(){
+  var p={nom:$("pNom").value.trim(),pre:$("pPre").value.trim(),dn:$("pDn").value,nir:$("pNir").value.trim(),adr:$("pAdr").value.trim()};
+  if(!p.nom) return;
+  pats = pats.filter(function(x){ return (x.nom+"|"+x.pre)!==(p.nom+"|"+p.pre); });
+  pats.unshift(p); if(pats.length>60) pats.pop();
+  save(K_PAT,pats);
+}
+
+/* ---------- RENDU FEUILLE ---------- */
+function fmtDate(v){
+  if(!v) return "";
+  var p=v.split("-"); if(p.length!==3) return v;
+  return p[2]+"/"+p[1]+"/"+p[0];
+}
+function render(){
+  $("sNom").textContent=ident.nom;
+  $("sQual").textContent=ident.qual;
+  $("sCo").innerHTML=esc(ident.adr).replace(/;/g,"<br>")+"<br>Tél. "+esc(ident.tel);
+  var n="<b>N° "+esc(ident.adeli)+"</b>";
+  if(ident.rpps) n+="<br>RPPS "+esc(ident.rpps);
+  if(ident.am)   n+="<br>N° AM "+esc(ident.am);
+  $("sNum").innerHTML=n;
+
+  var pn=($("pNom").value.toUpperCase()+" "+$("pPre").value).trim();
+  $("sPat").textContent=pn;
+  var dn=fmtDate($("pDn").value), nir=$("pNir").value.trim();
+  $("sNir").textContent=(dn?dn:"")+(dn&&nir?"  ·  ":"")+(nir?nir:"");
+  $("sAdr").textContent=$("pAdr").value;
+  $("sLieu").textContent=ident.ville+", le "+(fmtDate($("oDate").value)||"");
+
+  var ald=$("oAld").checked;
+  $("sCb").textContent = ald ? "☒" : "☐";
+  $("sZ1t").innerHTML = ald
+    ? 'Prescription en rapport avec l\'ALD <span class="sub">Exonération du ticket modérateur — 100 %</span>'
+    : esc($("oType").value);
+  $("sZ1").textContent=$("oZ1").value;
+  $("sSep2").classList.toggle("hide",!ald);
+  $("sZ2").textContent=$("oZ2").value;
+
+  var d=$("oDuree").value.trim(), r=$("oRenew").value;
+  var ft=[]; if(d) ft.push(esc(d)); if(r) ft.push(esc(r));
+  $("sDur").innerHTML = ft.join("<br>");
+}
+
+/* ---------- HISTORIQUE ---------- */
+function renderHist(){
+  var el=$("histList");
+  if(!hist.length){ el.innerHTML='<div class="empty">Aucune ordonnance enregistrée.</div>'; return; }
+  var h="";
+  for(var i=0;i<hist.length;i++){
+    var o=hist[i];
+    h+='<div class="hitem" data-i="'+i+'"><span><span class="hn">'+esc(o.pat||"—")+(o.ald?' <span style="color:var(--acc2)">ALD</span>':'')+'</span><br><span class="hd">'+esc(fmtDate(o.date))+' · '+esc(o.type||"")+'</span></span><button class="del" data-d="'+i+'">✕</button></div>';
+  }
+  el.innerHTML=h;
+}
+$("histList").addEventListener("click",function(ev){
+  var d=ev.target.getAttribute("data-d");
+  if(d!==null&&d!==undefined){ hist.splice(+d,1); save(K_HIST,hist); renderHist(); return; }
+  var it=ev.target.closest(".hitem");
+  if(!it) return;
+  var o=hist[+it.getAttribute("data-i")];
+  $("pNom").value=o.nom||""; $("pPre").value=o.pre||""; $("pDn").value=o.dn||""; $("pNir").value=o.nir||""; $("pAdr").value=o.adr||"";
+  $("oDate").value=o.date||""; $("oType").value=o.type||$("oType").value;
+  $("oAld").checked=!!o.ald; $("oAld").onchange();
+  $("oZ1").value=o.z1||""; $("oZ2").value=o.z2||"";
+  $("oDuree").value=o.duree||""; $("oRenew").value=o.renew||"";
+  render(); window.scrollTo({top:0,behavior:"smooth"});
+});
+$("clearHist").onclick=function(){
+  if(confirm("Effacer tout l'historique des ordonnances ?")){ hist=[]; save(K_HIST,hist); renderHist(); }
+};
+function archive(){
+  var o={nom:$("pNom").value.trim(),pre:$("pPre").value.trim(),dn:$("pDn").value,nir:$("pNir").value.trim(),
+         adr:$("pAdr").value.trim(),date:$("oDate").value,type:$("oType").value,ald:$("oAld").checked,
+         z1:$("oZ1").value,z2:$("oZ2").value,duree:$("oDuree").value,renew:$("oRenew").value};
+  o.pat=(o.nom.toUpperCase()+" "+o.pre).trim();
+  if(!o.pat && !o.z1.trim()) return;
+  hist.unshift(o); if(hist.length>120) hist.pop();
+  save(K_HIST,hist); renderHist(); rememberPatient();
+}
+
+/* ---------- ACTIONS ---------- */
+$("btnPreview").onclick=function(){
+  render();
+  var w=$("sheetWrap"); w.classList.toggle("show");
+  if(w.classList.contains("show")){ this.textContent="👁 Masquer"; w.scrollIntoView({behavior:"smooth"}); }
+  else this.textContent="👁 Aperçu";
+};
+$("btnPrint").onclick=function(){
+  render(); archive();
+  var w=$("sheetWrap"), was=w.classList.contains("show");
+  w.classList.add("show");
+  window.print();
+  if(!was) w.classList.remove("show");
+};
+$("btnNew").onclick=function(){
+  if(!confirm("Vider le formulaire (patient + prescription) ?")) return;
+  ["pNom","pPre","pDn","pNir","pAdr","oZ1","oZ2","oDuree"].forEach(function(id){ $(id).value=""; });
+  $("oAld").checked=false; $("oAld").onchange();
+  $("oRenew").selectedIndex=0;
+  $("oDate").value=new Date().toISOString().slice(0,10);
+  render(); window.scrollTo({top:0,behavior:"smooth"});
+};
+
+["pNom","pPre","pDn","pNir","pAdr","oDate","oType","oZ1","oZ2","oDuree","oRenew","oAld"].forEach(function(id){
+  $(id).addEventListener("input",render);
+  $(id).addEventListener("change",render);
+});
+
+/* ---------- INIT ---------- */
+$("oDate").value=new Date().toISOString().slice(0,10);
+renderIdent(); renderHist(); render();
+</script>
+</body>
+</html>
