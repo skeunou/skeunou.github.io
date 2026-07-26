@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LIBÉRAL — LV TOOL</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d0d0f; --surf:#141416; --surf2:#1c1c20; --bdr:#2a2a30;
+  --acc:#e8ff47; --acc2:#ff6b35; --warn:#ff9500; --txt:#f0f0f0;
+  --mut:#6b6b78; --grn:#4ade80; --red:#f87171; --purp:#a78bfa; --blue:#38bdf8;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--txt);font-family:'DM Sans',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased}
+body{display:flex;flex-direction:column;align-items:center;padding:40px 20px;background:radial-gradient(circle at 30% 0%,rgba(74,222,128,.06),transparent 50%),var(--bg)}
+header{text-align:center;margin-bottom:44px}
+.back{display:inline-block;color:var(--mut);text-decoration:none;font-size:12px;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px}
+.back:hover{color:var(--acc)}
+h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(40px,8vw,60px);letter-spacing:4px;line-height:1}
+h1 .accent{color:var(--grn)}
+.subtitle{font-size:14px;color:var(--mut);margin-top:12px;max-width:480px;line-height:1.5}
+main{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;max-width:880px;width:100%}
+.tool-card{position:relative;background:var(--surf);border:1px solid var(--bdr);border-left:3px solid var(--c);border-radius:12px;padding:22px;text-decoration:none;color:inherit;transition:.22s;display:flex;flex-direction:column;gap:10px}
+.tool-card:hover{border-color:var(--c);transform:translateY(-3px)}
+.c1{--c:var(--grn)} .c2{--c:var(--blue)} .c3{--c:var(--purp)}
+.t-head{display:flex;justify-content:space-between;align-items:flex-start}
+.t-icon{font-size:30px;line-height:1}
+.t-tag{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--c);border:1px solid var(--c);border-radius:12px;padding:3px 9px}
+.t-name{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px}
+.t-desc{font-size:13px;color:var(--mut);line-height:1.5;flex:1}
+.t-arrow{color:var(--c);font-size:18px;text-align:right}
+.soon{opacity:.45;pointer-events:none}
+footer{margin-top:50px;text-align:center;font-size:11px;color:var(--mut);letter-spacing:1px}
+</style>
+</head>
+<body>
+
+<header>
+  <a href="../" class="back">← LV TOOL</a>
+  <h1>LIB<span class="accent">ÉRAL</span></h1>
+  <div class="subtitle">Les outils du cabinet. Rédaction, traçabilité, administratif.</div>
+</header>
+
+<main>
+
+  <a href="./ordonnance.html" class="tool-card c1">
+    <div class="t-head">
+      <div class="t-icon">📝</div>
+      <div class="t-tag">Prescription</div>
+    </div>
+    <div class="t-name">ORDONNANCIER</div>
+    <div class="t-desc">Rédaction d'ordonnances pré-remplies, gestion ALD bizone, banque de dispositifs médicaux et export PDF A5.</div>
+    <div class="t-arrow">→</div>
+  </a>
+
+  <!-- Emplacements pour outils à venir (feuille de soins, DSI, transmissions...) -->
+
+</main>
+
+<footer>Construit sur mesure · Données locales · Aucune pub</footer>
+
+</body>
+</html>
