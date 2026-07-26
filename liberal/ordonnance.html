@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ordonnancier — LV TOOL</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Caveat:wght@600&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#0d0d0f; --surf:#141416; --surf2:#1c1c20; --bdr:#2a2a30;
@@ -105,12 +105,15 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
 #sheet .ft{margin-top:6mm;display:flex;justify-content:space-between;align-items:flex-end;gap:8mm}
 #sheet .ft .dur{font-size:9pt;flex:1}
 #sheet .ft .sig{text-align:center;font-size:8.2pt;color:#555;min-width:42mm}
-#sheet .ft .sig .line{border-bottom:.6pt solid #111;height:16mm}
+#sheet .ft .sig .line{border-bottom:.6pt solid #111;height:16mm;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;padding-bottom:1mm}
+#sheet .ft .sig .sgn{font-family:'Caveat',cursive;font-size:17pt;color:#111;line-height:1.05}
+#sheet .ft .sig .elec{font-size:7pt;color:#555;font-style:italic}
 #sheet .legal{position:absolute;left:11mm;right:11mm;bottom:5mm;font-size:6.6pt;color:#777;text-align:center;line-height:1.4}
 
 @page{size:A5 portrait;margin:0}
 @media print{
   html,body{background:#fff !important;padding:0 !important}
+  #sheet{zoom:1 !important}
   header,.wrap,.modal{display:none !important}
   #sheetWrap{display:block !important;padding:0;overflow:visible}
   #sheet{margin:0;box-shadow:none;width:148mm;min-height:209mm}
@@ -166,7 +169,7 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
 
   <!-- ORDONNANCE -->
   <div class="card">
-    <h2>Ordonnance</h2>
+    <h2>Ordonnance <span class="mini" id="openTpl" style="cursor:pointer;color:var(--acc)">★ modèles</span></h2>
     <div class="row c2">
       <div><label>Date</label><input id="oDate" type="date"></div>
       <div><label>Type</label>
@@ -206,20 +209,32 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
       <div><label>Durée / quantité</label><input id="oDuree" placeholder="Pour 1 mois de soins"></div>
       <div><label>Renouvellement</label>
         <select id="oRenew">
+          <option value="">(aucune mention)</option>
           <option>Non renouvelable</option>
           <option>À renouveler 1 fois</option>
           <option>À renouveler 2 fois</option>
           <option>À renouveler 3 fois</option>
           <option>À renouveler 5 fois</option>
-          <option value="">(aucune mention)</option>
         </select>
       </div>
     </div>
+
+    <label class="ald" id="sigWrap" style="margin-top:12px">
+      <input type="checkbox" id="oSig" checked>
+      <span>
+        <span class="t">Signature électronique pré-remplie</span>
+        <span class="s">Décoché → ligne vierge pour signer à la main</span>
+      </span>
+    </label>
   </div>
 
   <!-- ACTIONS -->
   <div class="card">
     <button class="btn" id="btnPrint">🖨 Imprimer / Exporter PDF A5</button>
+    <div class="btns">
+      <button class="btn sec sm" id="btnSave">💾 Enregistrer</button>
+      <button class="btn sec sm" id="btnTplSave">★ En faire un modèle</button>
+    </div>
     <div class="btns">
       <button class="btn sec sm" id="btnPreview">👁 Aperçu</button>
       <button class="btn sec sm" id="btnNew">✚ Nouvelle</button>
@@ -278,8 +293,8 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
     <div class="ft">
       <div class="dur" id="sDur"></div>
       <div class="sig">
-        <div class="line"></div>
-        Signature et cachet
+        <div class="line" id="sSigLine"></div>
+        <span id="sSigCap">Signature et cachet</span>
       </div>
     </div>
 
@@ -301,10 +316,11 @@ var DEF_IDENT = {
   am:"",
   ville:"Caluire-et-Cuire"
 };
-var K_IDENT="ordo:ident:v1", K_HIST="ordo:hist:v1", K_PAT="ordo:patients:v1";
+var K_IDENT="ordo:ident:v1", K_HIST="ordo:hist:v1", K_PAT="ordo:patients:v1", K_TPL="ordo:tpl:v1";
 var ident = load(K_IDENT, DEF_IDENT);
 var hist  = load(K_HIST, []);
 var pats  = load(K_PAT, []);
+var tpls  = load(K_TPL, []);
 
 function load(k,d){ try{ var v=localStorage.getItem(k); return v?JSON.parse(v):d; }catch(e){ return d; } }
 function save(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
@@ -313,63 +329,152 @@ function esc(s){ return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").repla
 
 /* ---------- BANQUE DM (indicative) ---------- */
 var BANK = [
- ["Pansements & soins de plaies",[
-   "Compresses stériles 10 x 10 cm — 2 boîtes de 50",
-   "Compresses stériles 7,5 x 7,5 cm — 2 boîtes de 50",
-   "Sérum physiologique 5 ml — 1 boîte de 50 unidoses",
+ ["Pansements — compresses & fixation",[
+   "Compresses stériles non tissées 10 x 10 cm — 2 boîtes de 50",
+   "Compresses stériles non tissées 7,5 x 7,5 cm — 2 boîtes de 50",
+   "Compresses stériles non tissées 5 x 5 cm — 1 boîte de 50",
+   "Compresses de gaze stériles 20 x 20 cm — 1 boîte",
+   "Sérum physiologique NaCl 0,9 % 5 ml — 1 boîte de 50 unidoses",
+   "Sérum physiologique NaCl 0,9 % 20 ml — 1 boîte de 20",
    "Antiseptique cutané (chlorhexidine aqueuse) — 1 flacon",
+   "Antiseptique cutané (povidone iodée dermique) — 1 flacon",
    "Pansement adhésif stérile 10 x 8 cm — 1 boîte",
-   "Film adhésif transparent semi-perméable — 1 boîte",
-   "Pansement hydrocolloïde 10 x 10 cm — 1 boîte",
-   "Pansement hydrocellulaire 10 x 10 cm — 1 boîte",
-   "Interface tulle neutre 10 x 10 cm — 1 boîte",
+   "Pansement adhésif stérile 15 x 9 cm — 1 boîte",
+   "Film adhésif transparent semi-perméable 10 x 12 cm — 1 boîte",
+   "Sparadrap hypoallergénique non tissé 2,5 cm — 2 rouleaux",
+   "Sparadrap microporeux 5 cm — 2 rouleaux",
    "Bande de crêpe 10 cm x 4 m — 6 unités",
+   "Bande de crêpe 5 cm x 4 m — 6 unités",
    "Bande de maintien cohésive 10 cm — 4 unités",
-   "Sparadrap hypoallergénique 2,5 cm — 2 rouleaux",
-   "Filet tubulaire de maintien — 1 unité",
-   "Set de pansement stérile — 1 boîte"
+   "Filet tubulaire de maintien (taille adaptée) — 1 unité",
+   "Jersey tubulaire 10 cm — 1 rouleau",
+   "Set de pansement stérile à usage unique — 1 boîte",
+   "Champ stérile troué — 10 unités"
  ]],
- ["Perfusion à domicile",[
+ ["Pansements techniques (plaies)",[
+   "Pansement hydrocolloïde 10 x 10 cm — 1 boîte",
+   "Pansement hydrocolloïde fin 15 x 15 cm — 1 boîte",
+   "Pansement hydrocellulaire non adhésif 10 x 10 cm — 1 boîte",
+   "Pansement hydrocellulaire adhésif siliconé 12,5 x 12,5 cm — 1 boîte",
+   "Pansement hydrocellulaire forme sacrum — 1 boîte",
+   "Pansement hydrocellulaire forme talon — 1 boîte",
+   "Pansement hydrofibre (type AQUACEL) 10 x 10 cm — 1 boîte",
+   "Pansement hydrofibre à l'argent 10 x 10 cm — 1 boîte",
+   "Mèche hydrofibre 2 x 45 cm — 1 boîte",
+   "Pansement alginate de calcium 10 x 10 cm — 1 boîte",
+   "Mèche d'alginate 2 g — 1 boîte",
+   "Pansement au charbon actif 10 x 10 cm — 1 boîte",
+   "Pansement à l'argent 10 x 10 cm — 1 boîte",
+   "Interface siliconée non adhérente 10 x 10 cm — 1 boîte",
+   "Interface tulle neutre / gras 10 x 10 cm — 1 boîte",
+   "Hydrogel en tube 15 g — 1 unité",
+   "Pansement irrigo-absorbant 7,5 x 7,5 cm — 1 boîte",
+   "Pansement à base d'acide hyaluronique 10 x 10 cm — 1 boîte",
+   "Pansement vaselinné stérile 10 x 10 cm — 1 boîte",
+   "Corticotulle / pansement anti-inflammatoire — 1 boîte",
+   "Pansement post-opératoire stérile îlot 10 x 20 cm — 1 boîte"
+ ]],
+ ["Perfusion & abords veineux",[
    "Cathéter court sécurisé 20 G — 10 unités",
+   "Cathéter court sécurisé 22 G — 10 unités",
    "Perfuseur par gravité stérile — 10 unités",
    "Prolongateur avec robinet 3 voies — 10 unités",
-   "Aiguille de Huber sécurisée 20 G — 5 unités",
+   "Aiguille de Huber sécurisée 20 G x 20 mm — 5 unités",
    "Valve bidirectionnelle sans aiguille — 10 unités",
-   "Pansement stérile transparent pour cathéter — 1 boîte",
+   "Pansement stérile transparent pour cathéter 8 x 10 cm — 1 boîte",
    "Seringue préremplie NaCl 0,9 % 10 ml — 20 unités",
-   "Pied à perfusion — 1 unité (location)"
+   "Seringue stérile 10 ml — 20 unités",
+   "Aiguille pompeuse 18 G — 20 unités",
+   "Compresses imprégnées d'alcool — 1 boîte de 100",
+   "Pied à perfusion — 1 unité (location)",
+   "Diffuseur portable / infuseur élastomérique — selon protocole",
+   "Bouchon obturateur stérile — 20 unités"
  ]],
  ["Prévention d'escarre & installation",[
-   "Matelas anti-escarre à air motorisé — 1 (location)",
+   "Matelas anti-escarre à air motorisé — 1 unité (location)",
    "Surmatelas en mousse viscoélastique — 1 unité",
+   "Surmatelas à air statique — 1 unité (location)",
    "Coussin de série de prévention d'escarre — 1 unité",
    "Talonnières de décharge — 1 paire",
+   "Coudières de protection — 1 paire",
    "Cerceau de lit — 1 unité",
-   "Potence — 1 unité (location)"
+   "Potence de lit — 1 unité (location)",
+   "Barrières de lit — 1 paire (location)",
+   "Alèse de transfert / drap de glisse — 1 unité"
  ]],
  ["Urologie & incontinence",[
    "Sonde vésicale à ballonnet CH 16 siliconée — 2 unités",
+   "Sonde vésicale à ballonnet CH 18 siliconée — 2 unités",
    "Sonde urinaire pour autosondage CH 14 — 60 unités",
-   "Poche de recueil d'urine à vidange 2 L — 10 unités",
+   "Set de sondage vésical stérile — 5 unités",
+   "Poche de recueil d'urine à vidange 2 L stérile — 10 unités",
    "Sac de jambe 750 ml — 10 unités",
+   "Système de fixation de sonde (cuisse) — 10 unités",
    "Étui pénien autoadhésif — 30 unités",
    "Protection anatomique absorption forte — 1 sachet / jour",
-   "Set de sondage stérile — 5 unités"
+   "Change complet taille M absorption nuit — 1 sachet / jour",
+   "Alèse jetable 60 x 90 cm — 1 boîte",
+   "Bassin de lit / urinal — 1 unité",
+   "Seringue à embout conique 50 ml (lavage vésical) — 10 unités"
  ]],
  ["Diabète & glycémie",[
    "Bandelettes d'autosurveillance glycémique — 1 boîte de 100",
    "Lancettes stériles — 1 boîte de 100",
    "Autopiqueur — 1 unité",
    "Aiguilles pour stylo injecteur 4 mm — 1 boîte de 100",
-   "Seringue à insuline 100 UI — 1 boîte de 30"
+   "Aiguilles pour stylo injecteur 5 mm — 1 boîte de 100",
+   "Seringue à insuline 100 UI / ml — 1 boîte de 30",
+   "Bandelettes urinaires (glycosurie / cétonurie) — 1 flacon",
+   "Capteur de mesure du glucose en continu — selon protocole"
  ]],
- ["Compression & divers",[
+ ["Compression & orthèses",[
    "Bas de compression classe 2 (renouvellement à l'identique) — 2 paires",
    "Chaussettes de compression classe 2 — 2 paires",
-   "Gants non stériles à usage unique — 1 boîte de 100",
-   "Collecteur DASRI pour objets piquants/coupants — 1 unité",
+   "Collants de compression classe 2 — 2 unités",
+   "Bandes de compression peu élastiques 10 cm — 4 unités",
+   "Système de compression multitype 2 bandes — 1 kit",
+   "Enfile-bas — 1 unité"
+ ]],
+ ["Stomie & digestif",[
+   "Support de stomie découpable — 10 unités",
+   "Poche de colostomie fermée — 30 unités",
+   "Poche d'iléostomie vidable — 15 unités",
+   "Poche d'urostomie — 15 unités",
+   "Pâte / anneau protecteur pour stomie — 1 boîte",
+   "Poudre protectrice cutanée pour stomie — 1 flacon",
+   "Dissolvant adhésif en spray — 1 flacon",
+   "Sonde de gastrostomie de remplacement — 1 unité",
+   "Set de nutrition entérale — selon protocole",
+   "Seringue à embout conique 60 ml (gavage) — 10 unités"
+ ]],
+ ["Respiratoire & aspiration",[
+   "Sonde d'aspiration CH 14 stérile — 30 unités",
+   "Stop-vide pour aspiration — 30 unités",
+   "Canule de trachéotomie de rechange — 1 unité",
+   "Filtre échangeur de chaleur et d'humidité — 30 unités",
+   "Compresse fendue pour trachéotomie — 1 boîte",
+   "Cordon de fixation pour canule — 5 unités",
+   "Masque à aérosol adulte — 5 unités",
+   "Lunettes à oxygène — 5 unités"
+ ]],
+ ["Hygiène, protection & élimination",[
+   "Gants non stériles à usage unique taille M — 1 boîte de 100",
+   "Gants stériles taille 7 — 20 paires",
+   "Collecteur DASRI pour objets piquants/coupants 2 L — 1 unité",
+   "Sac DASRI 30 L — 10 unités",
    "Masques chirurgicaux type II — 1 boîte de 50",
-   "Solution hydro-alcoolique 100 ml — 1 flacon"
+   "Solution hydro-alcoolique 100 ml — 1 flacon",
+   "Savon antiseptique moussant 500 ml — 1 flacon",
+   "Tablier de protection à usage unique — 1 boîte",
+   "Gel douche / savon doux surgras 500 ml — 1 flacon"
+ ]],
+ ["Vaccination & substituts nicotiniques",[
+   "Vaccin antigrippal saisonnier — 1 dose (à administrer par l'IDE)",
+   "Substitut nicotinique — patch 21 mg/24 h — 1 boîte de 28",
+   "Substitut nicotinique — patch 14 mg/24 h — 1 boîte de 28",
+   "Substitut nicotinique — patch 7 mg/24 h — 1 boîte de 28",
+   "Substitut nicotinique — gommes 2 mg — 1 boîte",
+   "Substitut nicotinique — pastilles 1,5 mg — 1 boîte"
  ]]
 ];
 
@@ -398,6 +503,8 @@ $("saveIdent").onclick=function(){
 };
 
 /* ---------- ALD BIZONE ---------- */
+$("oSig").onchange=function(){ $("sigWrap").classList.toggle("on",this.checked); render(); };
+
 $("oAld").onchange=function(){
   $("aldWrap").classList.toggle("on",this.checked);
   $("z2Wrap").classList.toggle("hide",!this.checked);
@@ -487,6 +594,14 @@ function render(){
   $("sSep2").classList.toggle("hide",!ald);
   $("sZ2").textContent=$("oZ2").value;
 
+  if($("oSig").checked){
+    $("sSigLine").innerHTML='<span class="sgn">'+esc(ident.nom)+'</span>';
+    $("sSigCap").innerHTML='<span class="elec">(signature électronique)</span>';
+  } else {
+    $("sSigLine").innerHTML="";
+    $("sSigCap").textContent="Signature et cachet";
+  }
+
   var d=$("oDuree").value.trim(), r=$("oRenew").value;
   var ft=[]; if(d) ft.push(esc(d)); if(r) ft.push(esc(r));
   $("sDur").innerHTML = ft.join("<br>");
@@ -514,6 +629,7 @@ $("histList").addEventListener("click",function(ev){
   $("oAld").checked=!!o.ald; $("oAld").onchange();
   $("oZ1").value=o.z1||""; $("oZ2").value=o.z2||"";
   $("oDuree").value=o.duree||""; $("oRenew").value=o.renew||"";
+  $("oSig").checked = (o.sig!==false); $("sigWrap").classList.toggle("on",$("oSig").checked);
   render(); window.scrollTo({top:0,behavior:"smooth"});
 });
 $("clearHist").onclick=function(){
@@ -522,7 +638,7 @@ $("clearHist").onclick=function(){
 function archive(){
   var o={nom:$("pNom").value.trim(),pre:$("pPre").value.trim(),dn:$("pDn").value,nir:$("pNir").value.trim(),
          adr:$("pAdr").value.trim(),date:$("oDate").value,type:$("oType").value,ald:$("oAld").checked,
-         z1:$("oZ1").value,z2:$("oZ2").value,duree:$("oDuree").value,renew:$("oRenew").value};
+         z1:$("oZ1").value,z2:$("oZ2").value,duree:$("oDuree").value,renew:$("oRenew").value,sig:$("oSig").checked};
   o.pat=(o.nom.toUpperCase()+" "+o.pre).trim();
   if(!o.pat && !o.z1.trim()) return;
   hist.unshift(o); if(hist.length>120) hist.pop();
@@ -530,17 +646,77 @@ function archive(){
 }
 
 /* ---------- ACTIONS ---------- */
+function fitSheet(){
+  var z=Math.min(1,(window.innerWidth-20)/560);
+  $("sheet").style.zoom = z<1 ? z : "";
+}
+window.addEventListener("resize",fitSheet);
+
 $("btnPreview").onclick=function(){
-  render();
+  render(); fitSheet();
   var w=$("sheetWrap"); w.classList.toggle("show");
   if(w.classList.contains("show")){ this.textContent="👁 Masquer"; w.scrollIntoView({behavior:"smooth"}); }
   else this.textContent="👁 Aperçu";
 };
+
+$("btnSave").onclick=function(){
+  if(!$("pNom").value.trim() && !$("oZ1").value.trim()){ alert("Rien à enregistrer."); return; }
+  archive();
+  this.textContent="✓ Enregistrée";
+  var b=this; setTimeout(function(){ b.textContent="💾 Enregistrer"; },1600);
+};
+
+/* ---------- MODÈLES ---------- */
+function tplSnapshot(){
+  return {type:$("oType").value,ald:$("oAld").checked,z1:$("oZ1").value,z2:$("oZ2").value,
+          duree:$("oDuree").value,renew:$("oRenew").value};
+}
+$("btnTplSave").onclick=function(){
+  if(!$("oZ1").value.trim()){ alert("La prescription est vide."); return; }
+  var n=prompt("Nom du modèle :","");
+  if(!n) return;
+  var t=tplSnapshot(); t.name=n.trim();
+  tpls = tpls.filter(function(x){ return x.name!==t.name; });
+  tpls.unshift(t); if(tpls.length>60) tpls.pop();
+  save(K_TPL,tpls);
+  this.textContent="✓ Modèle créé";
+  var b=this; setTimeout(function(){ b.textContent="★ En faire un modèle"; },1600);
+};
+$("openTpl").onclick=function(){
+  var h;
+  if(!tpls.length){
+    h='<div class="box"><h3>Modèles</h3><div class="empty">Aucun modèle. Rédige une ordonnance puis « ★ En faire un modèle ».</div><button class="btn sm" id="closeT">Fermer</button></div>';
+  } else {
+    h='<div class="box"><h3>Modèles</h3><div class="hist">';
+    for(var i=0;i<tpls.length;i++){
+      var pv=(tpls[i].z1||"").split("\n")[0];
+      h+='<div class="hitem" data-i="'+i+'"><span><span class="hn">'+esc(tpls[i].name)+(tpls[i].ald?' <span style="color:var(--acc2)">ALD</span>':'')+'</span><br><span class="hd">'+esc(pv.slice(0,54))+'</span></span><button class="del" data-d="'+i+'">✕</button></div>';
+    }
+    h+='</div><button class="btn sm" id="closeT" style="margin-top:12px">Fermer</button></div>';
+  }
+  var m=document.createElement("div"); m.className="modal"; m.innerHTML=h;
+  document.body.appendChild(m);
+  m.addEventListener("click",function(ev){
+    if(ev.target===m||ev.target.id==="closeT"){ m.remove(); return; }
+    var d=ev.target.getAttribute("data-d");
+    if(d!==null&&d!==undefined){ tpls.splice(+d,1); save(K_TPL,tpls); m.remove(); return; }
+    var it=ev.target.closest(".hitem");
+    if(!it) return;
+    var t=tpls[+it.getAttribute("data-i")];
+    $("oType").value=t.type||$("oType").value;
+    $("oAld").checked=!!t.ald; $("oAld").onchange();
+    $("oZ1").value=t.z1||""; $("oZ2").value=t.z2||"";
+    $("oDuree").value=t.duree||""; $("oRenew").value=t.renew||"";
+    m.remove(); render();
+  });
+};
 $("btnPrint").onclick=function(){
   render(); archive();
   var w=$("sheetWrap"), was=w.classList.contains("show");
+  $("sheet").style.zoom="";
   w.classList.add("show");
   window.print();
+  fitSheet();
   if(!was) w.classList.remove("show");
 };
 $("btnNew").onclick=function(){
@@ -548,17 +724,19 @@ $("btnNew").onclick=function(){
   ["pNom","pPre","pDn","pNir","pAdr","oZ1","oZ2","oDuree"].forEach(function(id){ $(id).value=""; });
   $("oAld").checked=false; $("oAld").onchange();
   $("oRenew").selectedIndex=0;
+  $("oSig").checked=true; $("sigWrap").classList.add("on");
   $("oDate").value=new Date().toISOString().slice(0,10);
   render(); window.scrollTo({top:0,behavior:"smooth"});
 };
 
-["pNom","pPre","pDn","pNir","pAdr","oDate","oType","oZ1","oZ2","oDuree","oRenew","oAld"].forEach(function(id){
+["pNom","pPre","pDn","pNir","pAdr","oDate","oType","oZ1","oZ2","oDuree","oRenew","oAld","oSig"].forEach(function(id){
   $(id).addEventListener("input",render);
   $(id).addEventListener("change",render);
 });
 
 /* ---------- INIT ---------- */
 $("oDate").value=new Date().toISOString().slice(0,10);
+$("sigWrap").classList.add("on");
 renderIdent(); renderHist(); render();
 </script>
 </body>
