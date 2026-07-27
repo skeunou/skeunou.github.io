@@ -348,6 +348,11 @@ var BANK = [
    "Bande de maintien cohésive 10 cm — 4 unités",
    "Filet tubulaire de maintien (taille adaptée) — 1 unité",
    "Jersey tubulaire 10 cm — 1 rouleau",
+   "TUBIFAST ligne bleue (jersey tubulaire 3,5 cm) — 1 boîte / semaine",
+   "TUBIFAST ligne verte (jersey tubulaire 5 cm) — 1 boîte / semaine",
+   "TUBIFAST ligne jaune (jersey tubulaire 7,5 cm) — 1 boîte / semaine",
+   "Bande NYLEX 4 m x 10 cm — QSP 2 / semaine",
+   "Bande NYLEX 4 m x 7 cm — QSP 2 / semaine",
    "Set de pansement stérile à usage unique — 1 boîte",
    "Champ stérile troué — 10 unités"
  ]],
@@ -367,6 +372,15 @@ var BANK = [
    "Pansement à l'argent 10 x 10 cm — 1 boîte",
    "Interface siliconée non adhérente 10 x 10 cm — 1 boîte",
    "Interface tulle neutre / gras 10 x 10 cm — 1 boîte",
+   "URGOTUL interface 10 x 10 cm — QSP 2 / semaine",
+   "URGOTUL AG interface à l'argent 10 x 10 cm — 1 boîte",
+   "SORBACT Gel Compress 7,5 x 7,5 cm — QSP 1 / jour",
+   "SORBACT compresse bactério-adsorbante 7 x 9 cm — 1 boîte",
+   "DRYMAX EXTRA 10 x 10 cm — QSP 2 / jour",
+   "DRYMAX EXTRA 20 x 20 cm — 1 boîte",
+   "AQUACEL EXTRA 10 x 10 cm — 1 boîte",
+   "AQUACEL EXTRA ruban 2 x 45 cm — 1 boîte",
+   "AQUACEL Ag+ EXTRA 10 x 10 cm — 1 boîte",
    "Hydrogel en tube 15 g — 1 unité",
    "Pansement irrigo-absorbant 7,5 x 7,5 cm — 1 boîte",
    "Pansement à base d'acide hyaluronique 10 x 10 cm — 1 boîte",
@@ -733,6 +747,26 @@ $("btnNew").onclick=function(){
   $(id).addEventListener("input",render);
   $(id).addEventListener("change",render);
 });
+
+/* ---------- SEED (import unique de l'ordonnance manuscrite) ---------- */
+(function(){
+  if(localStorage.getItem("ordo:seed:ducreux")) return;
+  var z1 = "TUBIFAST ligne bleue — 1 boîte / semaine\n"
+         + "URGOTUL interface 10 x 10 cm — QSP 2 / semaine\n"
+         + "Bande NYLEX 4 m x 10 cm — QSP 2 / semaine\n"
+         + "SORBACT Gel Compress 7,5 x 7,5 cm — QSP 1 / jour\n"
+         + "DRYMAX EXTRA 10 x 10 cm — QSP 2 / jour\n"
+         + "Compresses non tissées stériles 10 x 10 cm — QSP 4 / jour\n"
+         + "AQUACEL EXTRA 20 x 2,4 cm — 4 unités\n"
+         + "Pansement adhésif stérile 5 x 7,2 cm — 4 unités\n"
+         + "Pansement adhésif stérile 8 x 10 cm — 2 unités";
+  tpls.unshift({name:"Pansement DUCREUX J.J. — ALD",type:"Prescription de dispositifs médicaux",
+                ald:true,z1:z1,z2:"",duree:"QSP 6 mois",renew:""});
+  save(K_TPL,tpls);
+  pats.unshift({nom:"DUCREUX",pre:"J.J.",dn:"",nir:"",adr:""});
+  save(K_PAT,pats);
+  try{ localStorage.setItem("ordo:seed:ducreux","1"); }catch(e){}
+})();
 
 /* ---------- INIT ---------- */
 $("oDate").value=new Date().toISOString().slice(0,10);
