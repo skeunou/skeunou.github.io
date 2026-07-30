@@ -120,6 +120,7 @@ textarea{resize:vertical;min-height:110px;line-height:1.5}
   #sheet{margin:0;box-shadow:none;width:148mm;height:209mm}
 }
 </style>
+<script src="/lvnav.js"></script>
 </head>
 <body>
 
@@ -799,6 +800,9 @@ $("btnNew").onclick=function(){
 $("oDate").value=new Date().toISOString().slice(0,10);
 $("sigWrap").classList.add("on");
 renderIdent(); renderHist(); render();
+</script>
+<script>
+if(window.LVNAV){ LVNAV.init({ app:"ordonnancier", snapshot:function(){return{};}, restore:function(){} }); }
 </script>
 </body>
 </html>
