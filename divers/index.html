@@ -43,6 +43,7 @@ footer{margin-top:50px;text-align:center;font-size:11px;color:var(--mut);letter-
 @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
 @media(max-width:600px){body{padding:30px 16px}header{margin-bottom:34px}.tool-card{padding:18px}}
 </style>
+<script src="/lvnav.js"></script>
 </head>
 <body>
 
@@ -70,6 +71,16 @@ footer{margin-top:50px;text-align:center;font-size:11px;color:var(--mut);letter-
 
 <footer>Construit sur mesure · Données locales · Aucune pub</footer>
 
+<script>
+/* ============ LV : memoire de navigation ============ */
+var lvRestoring=false;
+if(window.LVNAV){
+  LVNAV.init({ app:"hub-divers", sections:'details, .sec, .acc',
+    snapshot:function(){ return {}; },
+    restore:function(s){ lvRestoring=true; try{  }catch(e){} lvRestoring=false; }
+  });
+}
+</script>
 </body>
 </html>
 
