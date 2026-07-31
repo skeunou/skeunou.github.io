@@ -33,6 +33,7 @@ main{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1
 .soon{opacity:.45;pointer-events:none}
 footer{margin-top:50px;text-align:center;font-size:11px;color:var(--mut);letter-spacing:1px}
 </style>
+<script src="/lvnav.js"></script>
 </head>
 <body>
 
@@ -60,5 +61,15 @@ footer{margin-top:50px;text-align:center;font-size:11px;color:var(--mut);letter-
 
 <footer>Construit sur mesure · Données locales · Aucune pub</footer>
 
+<script>
+/* ============ LV : memoire de navigation ============ */
+var lvRestoring=false;
+if(window.LVNAV){
+  LVNAV.init({ app:"hub-liberal", sections:'details, .sec, .acc',
+    snapshot:function(){ return {}; },
+    restore:function(s){ lvRestoring=true; try{  }catch(e){} lvRestoring=false; }
+  });
+}
+</script>
 </body>
 </html>
