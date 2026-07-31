@@ -67,6 +67,7 @@ footer a:hover{color:var(--acc)}
   .universe{padding:22px}
 }
 </style>
+<script src="/lvnav.js"></script>
 </head>
 <body>
 
@@ -149,6 +150,16 @@ footer a:hover{color:var(--acc)}
   Construit sur mesure · Données locales · Aucune pub
 </footer>
 
+<script>
+/* ============ LV : memoire de navigation ============ */
+var lvRestoring=false;
+if(window.LVNAV){
+  LVNAV.init({ app:"hub-root", sections:'details, .sec, .acc',
+    snapshot:function(){ return {}; },
+    restore:function(s){ lvRestoring=true; try{  }catch(e){} lvRestoring=false; }
+  });
+}
+</script>
 </body>
 </html>
 
